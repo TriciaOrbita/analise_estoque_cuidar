@@ -1,0 +1,80 @@
+/* Contêiner da tabela e mensagens */
+.saldo-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 40px auto;
+  }
+  
+  /* Mensagens de erro e carregamento */
+  .mensagem {
+    color: red;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .tabela-container {
+    max-height: 700px; /* Altura máxima da tabela */
+    overflow-y: auto;  /* Permite a rolagem vertical */
+    margin-top: 20px;
+  }
+  
+  .mensagem.erro {
+    color: darkred;
+  }
+  
+  /* Estilo para a tabela */
+  .saldo-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .saldo-table th,
+  .saldo-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border: 1px solid #ddd;
+  }
+  
+  /* Estilo para as cabeçalhos */
+  .saldo-table th {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  
+  /* Estilo para as linhas da tabela */
+  .saldo-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  .saldo-table tbody tr:hover {
+    background-color: #e9e9e9;
+  }
+  
+  /* Estilo para a célula de valor numérico */
+  .saldo-table td {
+    text-align: right;
+  }
+
+  .saldo-table thead {
+    position: sticky;
+    top: 0;
+    background-color: #fff; /* Cor de fundo para o cabeçalho */
+    z-index: 1; /* Garantir que o cabeçalho fique acima do conteúdo */
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1); /* Sombra para destacar o cabeçalho */
+  }
+  
+  /* Estilo para o título */
+  h2 {
+    font-size: 24px;
+    margin-bottom: 15px;
+    color: #333;
+    font-weight: bold;
+  }
+  
