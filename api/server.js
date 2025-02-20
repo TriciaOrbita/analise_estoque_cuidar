@@ -78,5 +78,7 @@ app.get('/estoque/:unidade', async (req, res) => {
   }
 });
 
-// Função que o Vercel usará para rodar a API
-module.exports = app;
+// Exportando a função handler para o Vercel
+module.exports = (req, res) => {
+  app(req, res);
+};
