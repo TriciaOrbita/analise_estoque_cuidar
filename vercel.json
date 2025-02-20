@@ -2,14 +2,22 @@
     "version": 2,
     "builds": [
       {
-        "src": "meu-dashboard/api/main.py",
+        "src": "frontend/package.json",
+        "use": "@vercel/react"
+      },
+      {
+        "src": "api/main.py",
         "use": "@vercel/python"
       }
     ],
     "routes": [
       {
         "src": "/api/(.*)",
-        "dest": "meu-dashboard/api/main.py"
+        "dest": "/api/main.py"
+      },
+      {
+        "src": "/(.*)",
+        "dest": "/frontend/$1"
       }
     ]
   }
