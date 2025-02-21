@@ -124,23 +124,22 @@ export default function EstoqueTable() {
 
   return (
     <div className="estoque-container">
-      {loading && <p>Carregando unidades...</p>}
-      {error && <p className="mensagem erro">{error}</p>}
+  {loading && <p>Carregando unidades...</p>}
 
-      {!loading && !error && unidades.length > 0 && (
-        <select
-          className="estoque-select"
-          value={unidadeSelecionada}
-          onChange={(e) => setUnidadeSelecionada(e.target.value)}
-        >
-          <option value="">Selecione uma unidade</option>
-          {unidades.map((unidade, index) => (
-            <option key={index} value={unidade}>
-              {unidade}
-            </option>
-          ))}
-        </select>
-      )}
+  {!loading && unidades.length > 0 && (
+    <select
+      className="estoque-select"
+      value={unidadeSelecionada}
+      onChange={(e) => setUnidadeSelecionada(e.target.value)}
+    >
+      <option value="">Selecione uma unidade</option>
+      {unidades.map((unidade, index) => (
+        <option key={index} value={unidade}>
+          {unidade}
+        </option>
+      ))}
+    </select>
+  )}
 
       {/* Barra de pesquisa */}
       {unidadeSelecionada && (
