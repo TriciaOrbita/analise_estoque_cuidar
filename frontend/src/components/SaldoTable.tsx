@@ -18,7 +18,7 @@ export default function SaldoTable() {
     setLoading(true);
     setError(null);
     axios
-      .get("http://localhost:8000/saldo_total") // Endpoint para obter os dados de saldo total
+      .get("https://apianaliseestoque-production.up.railway.app/saldo_total") // Endpoint para obter os dados de saldo total
       .then((response) => {
         console.log("Resposta da API:", response.data); // Verifique a resposta no console
         if (Array.isArray(response.data)) {

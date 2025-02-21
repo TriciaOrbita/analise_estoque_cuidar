@@ -21,6 +21,7 @@ export default function EstoqueTable() {
   const [estoque, setEstoque] = useState<EstoqueItem[]>([]);
   const [quantidadesMinimas, setQuantidadesMinimas] = useState<{ [key: string]: number }>({});
   const [searchTerm, setSearchTerm] = useState<string>(""); // Estado para o termo de pesquisa
+  const [filtroIndisponivel, setFiltroIndisponivel] = useState<boolean>(false);
 
   // Carregar o JSON de quantidades mínimas
   useEffect(() => {
@@ -40,7 +41,7 @@ export default function EstoqueTable() {
     setLoading(true);
     setError(null);
     axios
-      .get("http://localhost:8000/unidades")
+      .get("https://apianaliseestoque-production.up.railway.app/unidades")
       .then((response) => {
         if (response.data && Array.isArray(response.data.unidades)) {
           setUnidades(response.data.unidades);
@@ -63,7 +64,7 @@ export default function EstoqueTable() {
     setError(null);
 
     axios
-      .get(`http://localhost:8000/estoque/${unidadeSelecionada}`)
+      .get(`https://apianaliseestoque-production.up.railway.app/estoque/${unidadeSelecionada}`)
       .then((response) => {
         if (response.data && Array.isArray(response.data)) {
           setEstoque(response.data);
@@ -107,6 +108,20 @@ export default function EstoqueTable() {
     item.nome_medicamento.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+   // Função para alternar o filtro "Indisponível"
+   const toggleFiltroIndisponivel = () => {
+    setFiltroIndisponivel((prev) => !prev);
+  };
+
+  // Filtrar o estoque de acordo com o filtro "Indisponível"
+  const estoqueFiltrado = filtroIndisponivel
+    ? estoque.filter((item) => item.saldo_estoque === 0)
+    : estoque;
+
+    const estoqueFinal = estoqueFiltrado.filter((item) =>
+      item.nome_medicamento.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
   return (
     <div className="estoque-container">
       {loading && <p>Carregando unidades...</p>}
@@ -139,7 +154,11 @@ export default function EstoqueTable() {
         </div>
       )}
 
-      {unidadeSelecionada && filteredEstoque.length > 0 && (
+          <button onClick={toggleFiltroIndisponivel}>
+            {filtroIndisponivel ? "Mostrar Todos" : "Mostrar Indisponíveis"}
+          </button>
+
+      {unidadeSelecionada && estoqueFinal.length > 0 && (
         <div>
           <h2>Estoque de {unidadeSelecionada}</h2>
 
@@ -156,7 +175,7 @@ export default function EstoqueTable() {
                 </tr>
               </thead>
               <tbody>
-                {filteredEstoque.map((item) => {
+                {estoqueFinal.map((item) => {
                   const status = calcularStatus(item.nome_medicamento, item.saldo_estoque);
                   const progresso = (item.saldo_estoque / status.minQuantidade) * 100;
                   return (
@@ -177,7 +196,7 @@ export default function EstoqueTable() {
 
           {/* Caixa rolável para as barras de progresso (excluindo "OK") */}
           <div className="progress-container" style={{ maxHeight: "250px", overflowY: "auto" }}>
-            {filteredEstoque.map((item) => {
+            {estoqueFinal.map((item) => {
               const status = calcularStatus(item.nome_medicamento, item.saldo_estoque);
               
               // Mostrar barra de progresso apenas para status diferentes de "OK"
@@ -204,7 +223,7 @@ export default function EstoqueTable() {
           </div>
         </div>
       )}
-      {unidadeSelecionada && filteredEstoque.length === 0 && !loading && (
+      {unidadeSelecionada && estoqueFinal.length === 0 && !loading && (
         <p className="mensagem">Não há dados de estoque disponíveis para esta unidade.</p>
       )}
     </div>

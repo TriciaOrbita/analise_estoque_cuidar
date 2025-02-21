@@ -39,7 +39,7 @@ export default function CafTable() {
     setLoading(true);
     setError(null);
     axios
-      .get("/estoque/CAF")  // Endpoint para obter os dados da CAF
+      .get("https://apianaliseestoque-production.up.railway.app/estoque/CAF")  // Endpoint para obter os dados da CAF
       .then((response) => {
         if (response.data && Array.isArray(response.data)) {
           setEstoque(response.data);
