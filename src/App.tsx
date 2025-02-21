@@ -19,7 +19,7 @@ export default function App() {
         {/* Barra de navegação superior */}
         <header className="header">
           <button className="sidebar-toggle" onClick={toggleSidebar}>
-            {isSidebarOpen ? "❌" : "☰"} {/* Ícone de alternância */}
+            {isSidebarOpen ? "☰" : "☰"} {/* Ícone de alternância */}
           </button>
           <h1>Analise de Estoque</h1>
         </header>
@@ -27,6 +27,9 @@ export default function App() {
         {/* Menu lateral */}
         <nav className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
           <ul>
+            <li> 
+              <Link to="/">Página Inicial</Link>
+            </li>
             <li>
               <Link to="/estoquetable">Analise de Estoque - Unidades</Link>
             </li>
@@ -45,14 +48,21 @@ export default function App() {
               path="/estoquetable"
               element={<EstoqueTable />}
             />
-            <Route path="/" element={<div>Selecione uma unidade para ver o estoque.</div>} />
+           <Route path="/" element={
+              <div className="explanation-container">
+                <h2>Bem-vindo ao sistema de analise de estoque!</h2>
+                <p>Este site permite analisar a quantidade de estoque disponível de cada item de forma detalhada. Ao selecionar uma unidade, você poderá:</p>
+                <ul>
+                  <li><strong>Visualizar o total em estoque</strong>, com a quantidade atual de cada item.</li>
+                  <li><strong>Acompanhar o status de cada item</strong>, que é determinado com base nas quantidades mínimas necessárias para garantir o abastecimento.</li>
+                  <li><strong>Verificar barras de progresso</strong>, que indicam o status do estoque de cada item em tempo real, com cores representando as condições do estoque (OK, Baixo, Crítico).</li>
+                </ul>
+                <p>Para refinar sua busca, você pode usar filtros para mostrar apenas itens indisponíveis, com estoque baixo ou crítico. Selecione uma unidade para começar!</p>
+              </div>
+            } />
           </Routes>
         </div>
       </div>
-      
-      <footer className="footer">
-          <p>Desenvolvido por Órbita Tecnologia</p>
-        </footer>
     </Router>
   );
 }

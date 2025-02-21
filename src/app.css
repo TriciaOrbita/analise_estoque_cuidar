@@ -1,114 +1,166 @@
 /* Contêiner geral */
 .app-container {
-    display: flex;
-    height: 100vh;
-    position: relative;
-  }
-  
-  /* Barra de navegação superior */
-  .header {
-    width: 100%;
-    background-color: #006627;
-    color: white;
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between; 
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10;
-  }
+  display: flex;
+  flex-direction: column;
+}
 
-    /* Título */
-    .header h1 {
-        margin: 10px; /* Remove qualquer margem padrão */
-        font-size: 24px;
-        flex-grow: 1; /* Faz o título crescer e ocupar o espaço disponível */
-        text-align: left; /* Alinha o título à esquerda */
-    }
-  
-  /* Botão para alternar o menu lateral */
-  .sidebar-toggle {
-    background-color: #004d2f;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 5px;
-  }
-  
-  /* Menu lateral */
-  .sidebar {
-    width: 250px;
-    background-color: #053f29;
-    color: white;
-    position: fixed;
-    top: 85px; /* Ajusta a posição abaixo da barra superior */
-    left: 0;
-    bottom: 0;
-    padding-top: 40px;
-    transition: transform 0.3s ease;
-    z-index: 5;  /* Menu lateral abaixo da barra superior */
-  }
-  
-  .sidebar.closed {
-    transform: translateX(-100%);
-  }
-  
-  .sidebar.open {
-    transform: translateX(0);
-  }
-  
-  .sidebar ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-  }
-  
-  .sidebar li {
-    margin-bottom: 20px;
-  }
-  
-  .sidebar a {
-    color: white;
-    text-decoration: none;
-    font-size: 18px;
-    display: block;
-    padding: 10px;
-  }
-  
-  .sidebar a:hover {
-    background-color: #575757;
-  }
-  
-  /* Conteúdo principal (à direita do menu lateral) */
-  .content {
-    margin-left: 250px;
-    margin-top: 50px; /* Adiciona o espaçamento da barra superior */
-    padding: 20px;
-    width: 100%;
-    transition: margin-left 0.3s ease;
-    z-index: 1; /* Conteúdo principal abaixo da barra superior */
-  }
-  
-  .sidebar.closed ~ .content {
-    margin-left: 0;
-  }
+.header {
+  width: 100%;
+  height: 65px;
+  background: linear-gradient(135deg, #008037, #005f2a);
+  color: white;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  border-bottom: 2px solid #004d2f;
+}
 
-  /* Footer */
-  .footer {
-    background-color: #006627;
-    padding: 15px;
-    text-align: center;
-    font-size: 14px;
-    color: #ffffff;
-    position: relative;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-  }
+/* 🔹 Botão da sidebar fixo à esquerda */
+.sidebar-toggle {
+  background-color: transparent;
+  color: white;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  transition: background 0.3s ease-in-out;
+}
+
+/* 🔹 Centraliza apenas o título */
+.header h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.sidebar-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-color: #00cc66;
+  transform: scale(1.05);
+}
+
+/* 🔹 Sidebar refinada */
+.sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, #042f1e, #00592f);
+  color: white;
+  position: fixed;
+  top: 65px; /* Ajustado para combinar com a nova altura do header */
+  left: 0;
+  bottom: 0;
+  padding-top: 40px;
+  height: calc(100vh - 65px);
+  transition: transform 0.3s ease, background 0.3s ease;
+  z-index: 100;
+  box-shadow: 3px 0px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* 🔹 Sidebar recolhível */
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* 🔹 Lista de navegação */
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar li {
+  margin-bottom: 15px;
+}
+
+/* 🔹 Links da sidebar refinados */
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease-in-out;
+}
+
+.sidebar a:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px);
+}
+
+.explanation-container {
+  background-color: #f4f7fb; /* Fundo suave para destacar o conteúdo */
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.explanation-container h2 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.explanation-container p {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+.explanation-container ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.explanation-container ul li {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.explanation-container ul li::before {
+  content: "✔️"; /* ícone de check verde */
+  margin-right: 10px;
+  color: #2e8b57; /* Verde para os ícones de check */
+}
+
+.explanation-container p strong {
+  font-weight: bold;
+  color: #2e8b57; /* Verde para destacar pontos importantes */
+}
+
+.explanation-container ul li:last-child {
+  margin-bottom: 0;
+}
+
+.explanation-container a {
+  text-decoration: none;
+  color: #2e8b57; /* Cor verde para links */
+}
+
+.explanation-container a:hover {
+  text-decoration: underline;
+}
