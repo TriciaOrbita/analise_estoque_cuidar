@@ -371,3 +371,173 @@ button {
     opacity: 1;
   }
   
+
+  /* Ajustes para telas menores */
+@media (max-width: 768px) {
+
+  /* Container principal */
+  .estoque-container,
+  .estoque-geral-container,
+  .estoque-caf-container-1 {
+    padding: 15px; /* Menor padding em telas pequenas */
+    width: 100%;
+    max-width: 100%;
+  }
+
+  /* Barra de pesquisa */
+  .search-bar input {
+    width: 100%;
+    padding: 10px 12px; /* Menor espaçamento */
+    font-size: 14px;
+  }
+
+  /* Select */
+  .estoque-select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  /* Tabela */
+  .estoque-table th,
+  .estoque-table td {
+    padding: 10px; /* Menor padding */
+    font-size: 14px;
+  }
+
+  .estoque-table th {
+    font-size: 16px;
+  }
+
+  /* Progresso */
+  .progress-bar-container {
+    margin-bottom: 8px; /* Menor espaçamento */
+  }
+
+  .progress-bar-label {
+    font-size: 12px;
+  }
+
+  .progress-bar-fill {
+    height: 8px; /* Reduz altura das barras de progresso */
+  }
+
+  .progress-bar-text {
+    font-size: 10px; /* Menor tamanho de texto */
+  }
+
+  /* Botões */
+  button {
+    font-size: 14px; /* Ajusta o tamanho do botão */
+    padding: 8px 15px; /* Ajusta o espaçamento do botão */
+  }
+
+  /* Caixa rolável */
+  .estoque-tabela-container,
+  .estoque-caf-container {
+    max-height: 300px; /* Limita a altura das tabelas */
+  }
+
+  /* Filtro */
+  .filtro-container {
+    flex-direction: column; /* Coloca os botões em coluna */
+    align-items: center; /* Centraliza os botões */
+    gap: 5px; /* Menor espaçamento entre os botões */
+  }
+
+  /* Info container */
+  .info-container {
+    margin-left: 0; /* Ajusta o espaçamento para o ícone */
+  }
+
+  /* Info text */
+  .info-text {
+    width: auto;
+    font-size: 12px; /* Ajusta o tamanho da fonte */
+    max-width: 150px;
+  }
+
+  /* Footer */
+  .footer {
+    font-size: 12px; /* Diminui o tamanho da fonte do rodapé */
+  }
+
+  /* Ajuste de posição para centralizar */
+  .estoque-geral-container,
+  .estoque-caf-container-1 {
+    top: 0;
+    transform: translate(0%, 0%);
+    position: relative;
+  }
+}
+
+/* Ajustes para telas pequenas (celular) */
+@media (max-width: 480px) {
+  
+  /* Container principal */
+  .estoque-container,
+  .estoque-geral-container,
+  .estoque-caf-container-1 {
+    padding: 10px; /* Menor padding */
+    width: 100%;
+  }
+
+  /* Barra de pesquisa */
+  .search-bar input {
+    font-size: 12px;
+  }
+
+  /* Select */
+  .estoque-select {
+    font-size: 12px;
+  }
+
+  /* Tabela */
+  .estoque-table th,
+  .estoque-table td {
+    padding: 8px; /* Reduz o padding */
+    font-size: 12px;
+  }
+
+  /* Progresso */
+  .progress-bar-label {
+    font-size: 10px; /* Menor fonte */
+  }
+
+  .progress-bar-fill {
+    height: 6px; /* Menor altura nas barras de progresso */
+  }
+
+  .progress-bar-text {
+    font-size: 10px; /* Ajusta o tamanho do texto */
+  }
+
+  /* Botões */
+  button {
+    font-size: 12px; /* Ajuste para botões em telas pequenas */
+    padding: 6px 12px; /* Reduz o padding */
+  }
+
+  /* Caixa rolável */
+  .estoque-tabela-container,
+  .estoque-caf-container {
+    max-height: 250px; /* Ajuste para telas pequenas */
+  }
+
+  /* Filtro */
+  .filtro-container {
+    flex-direction: column; /* Coloca os botões em coluna */
+    gap: 3px; /* Reduz o espaçamento entre os botões */
+  }
+
+  /* Info text */
+  .info-text {
+    font-size: 10px;
+    max-width: 120px; /* Reduz o tamanho do texto e largura */
+  }
+
+  /* Footer */
+  .footer {
+    font-size: 10px;
+  }
+}

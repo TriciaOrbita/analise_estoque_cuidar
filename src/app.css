@@ -164,3 +164,130 @@
 .explanation-container a:hover {
   text-decoration: underline;
 }
+
+/* Ajustes para telas pequenas e dispositivos móveis */
+
+/* Contêiner geral */
+.app-container {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ajuste no header para telas menores */
+.header {
+  height: 55px; /* Diminuir altura */
+  padding: 0 10px; /* Ajustar o padding */
+}
+
+.header h1 {
+  font-size: 18px; /* Tamanho da fonte reduzido */
+  letter-spacing: 1px;
+}
+
+/* Ajuste na sidebar para telas pequenas */
+.sidebar {
+  width: 240px; /* Diminuir a largura da sidebar */
+  padding-top: 20px; /* Ajustar o padding superior */
+}
+
+.sidebar a {
+  font-size: 16px; /* Diminuir o tamanho da fonte dos links */
+  padding: 10px 15px; /* Reduzir o padding */
+}
+
+.sidebar li {
+  margin-bottom: 12px; /* Ajuste no espaçamento entre os itens */
+}
+
+/* Ajustar o comportamento da sidebar em telas menores */
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Ajustes no botão de alternância da sidebar */
+.sidebar-toggle {
+  font-size: 20px; /* Reduzir o tamanho do botão */
+  padding: 8px; /* Ajuste no padding */
+}
+
+/* Ajustes na explicação */
+.explanation-container {
+  padding: 15px; /* Ajustar o padding */
+  margin: 15px; /* Ajustar margem */
+  max-width: 100%; /* Ajuste para caber em telas pequenas */
+}
+
+/* Ajustes no título da explicação */
+.explanation-container h2 {
+  font-size: 20px; /* Reduzir tamanho do título */
+}
+
+/* Ajuste nos parágrafos da explicação */
+.explanation-container p {
+  font-size: 14px; /* Reduzir tamanho da fonte */
+}
+
+/* Ajuste nos itens da lista */
+.explanation-container ul li {
+  font-size: 14px; /* Reduzir o tamanho da fonte */
+}
+
+/* Ajustar links */
+.explanation-container a {
+  font-size: 14px; /* Reduzir tamanho da fonte dos links */
+}
+
+/* Ajustes para telas muito pequenas (ex: celulares em retrato) */
+@media (max-width: 480px) {
+  /* Reduzir ainda mais a altura do header */
+  .header {
+    height: 50px;
+  }
+
+  /* Ajustar a sidebar para ser mais compacta */
+  .sidebar {
+    width: 220px;
+    padding-top: 15px;
+  }
+
+  .sidebar a {
+    font-size: 14px;
+    padding: 8px 10px;
+  }
+
+  /* Ajustar a barra de título para ocupar mais espaço */
+  .header h1 {
+    font-size: 16px;
+  }
+
+  .sidebar-toggle {
+    font-size: 18px;
+    padding: 6px;
+  }
+
+  /* Ajustes no conteúdo */
+  .explanation-container {
+    padding: 10px;
+    margin: 10px;
+  }
+
+  .explanation-container h2 {
+    font-size: 18px;
+  }
+
+  .explanation-container p {
+    font-size: 12px;
+  }
+
+  .explanation-container ul li {
+    font-size: 12px;
+  }
+
+  .explanation-container a {
+    font-size: 12px;
+  }
+}
