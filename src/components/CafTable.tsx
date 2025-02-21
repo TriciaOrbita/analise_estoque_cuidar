@@ -100,7 +100,7 @@ export default function CafTable() {
           <div className="search-bar">
           <input
             type="text"
-            placeholder="Pesquisar medicamento..."
+            placeholder="Pesquisar item..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -116,7 +116,7 @@ export default function CafTable() {
             <table className="estoque-table">
               <thead>
                 <tr>
-                  <th>Nome do Medicamento</th>
+                  <th>Nome do item</th>
                   <th>Saldo em Estoque</th>
                   <th>Lote</th>
                   <th>Data de Movimentação</th>

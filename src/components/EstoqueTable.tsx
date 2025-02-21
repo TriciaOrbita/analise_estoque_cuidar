@@ -147,7 +147,7 @@ export default function EstoqueTable() {
         <div className="search-bar">
           <input
             type="text"
-            placeholder="Pesquisar medicamento..."
+            placeholder="Pesquisar item..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -167,7 +167,7 @@ export default function EstoqueTable() {
             <table className="estoque-table">
               <thead>
                 <tr>
-                  <th>Nome do Medicamento</th>
+                  <th>Nome do Item</th>
                   <th>Saldo em Estoque</th>
                   <th>Lote</th>
                   <th>Data de Movimentação</th>

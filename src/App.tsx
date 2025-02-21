@@ -28,13 +28,13 @@ export default function App() {
         <nav className={`sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
           <ul>
             <li>
-              <Link to="/estoquetable">Estoque</Link>
+              <Link to="/estoquetable">Analise de Estoque - Unidades</Link>
             </li>
             <li>
-              <Link to="/saldotable">Saldo</Link>
+              <Link to="/saldotable">Saldo de Estoque Geral</Link>
             </li>
             <li>
-              <Link to="/caftable">CAF</Link>
+              <Link to="/caftable">Analise de Estoque - CAF</Link>
             </li>
           </ul>
         </nav>
