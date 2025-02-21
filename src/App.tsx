@@ -31,9 +31,6 @@ export default function App() {
               <Link to="/estoquetable">Analise de Estoque - Unidades</Link>
             </li>
             <li>
-              <Link to="/saldotable">Saldo de Estoque Geral</Link>
-            </li>
-            <li>
               <Link to="/caftable">Analise de Estoque - CAF</Link>
             </li>
           </ul>
