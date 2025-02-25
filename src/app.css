@@ -55,11 +55,11 @@
 
 /* 🔹 Sidebar refinada */
 .sidebar {
-  width: 260px;
+  width: 280px;
   background: linear-gradient(180deg, #042f1e, #00592f);
   color: white;
   position: fixed;
-  top: 65px; /* Ajustado para combinar com a nova altura do header */
+  top: 50px; /* Ajustado para combinar com a nova altura do header */
   left: 0;
   bottom: 0;
   padding-top: 40px;
@@ -187,6 +187,7 @@
 /* Ajuste na sidebar para telas pequenas */
 .sidebar {
   width: 240px; /* Diminuir a largura da sidebar */
+  height: auto;
   padding-top: 20px; /* Ajustar o padding superior */
 }
 

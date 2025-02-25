@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Route, Routes, Link } from "react-router-dom";
 import EstoqueTable from "./components/EstoqueTable"; 
-import SaldoTable from "./components/SaldoTable"; 
 import CafTable from "./components/CafTable"; 
+import EntradasSaidas from "./components/EntradasSaidas";
 import React, { useState } from "react";
 
 export default function App() {
@@ -21,7 +21,7 @@ export default function App() {
           <button className="sidebar-toggle" onClick={toggleSidebar}>
             {isSidebarOpen ? "☰" : "☰"} {/* Ícone de alternância */}
           </button>
-          <h1>Analise de Estoque</h1>
+          <h1>Análise de Estoque</h1>
         </header>
 
         {/* Menu lateral */}
@@ -31,10 +31,13 @@ export default function App() {
               <Link to="/">Página Inicial</Link>
             </li>
             <li>
-              <Link to="/estoquetable">Analise de Estoque - Unidades</Link>
+              <Link to="/estoquetable">Análise de Estoque - Unidades</Link>
             </li>
             <li>
-              <Link to="/caftable">Analise de Estoque - CAF</Link>
+              <Link to="/caftable">Análise de Estoque - CAF</Link>
+            </li>
+            <li>
+              <Link to="/saidas_e_entradas_CAF">Análise de Movimentações - CAF</Link>
             </li>
           </ul>
         </nav>
@@ -42,15 +45,18 @@ export default function App() {
         {/* Conteúdo principal */}
         <div className="content">
           <Routes>
-            <Route path="/saldotable" element={<SaldoTable />} />
             <Route path="/caftable" element={<CafTable />} />
             <Route
               path="/estoquetable"
               element={<EstoqueTable />}
             />
+             <Route
+              path="/saidas_e_entradas_CAF"
+              element={<EntradasSaidas />}
+            />
            <Route path="/" element={
               <div className="explanation-container">
-                <h2>Bem-vindo ao sistema de analise de estoque!</h2>
+                <h2>Bem-vindo ao sistema de Análise de estoque!</h2>
                 <p>Este site permite analisar a quantidade de estoque disponível de cada item de forma detalhada. Ao selecionar uma unidade, você poderá:</p>
                 <ul>
                   <li><strong>Visualizar o total em estoque</strong>, com a quantidade atual de cada item.</li>

@@ -3,14 +3,18 @@ import React from "react";
 import axios from "axios";
 import { FaCheckCircle, FaExclamationTriangle, FaExclamationCircle, FaTimesCircle } from "react-icons/fa";
 import "../styles.css";
+import * as XLSX from 'xlsx';
 
 // Interface para os dados de estoque da CAF
 interface EstoqueItem {
-  id: number;
   nome_medicamento: string;
-  saldo_estoque: number;
+  estoque_atual: number;
   lote?: string;
-  data_movimentacao: string;
+  data_atualizacao: string;
+  local: string;
+  id: number;
+  quantidade_saida: number;
+  quantidade: number;
 }
 
 export default function CafTable() {
@@ -22,6 +26,7 @@ export default function CafTable() {
   const [filtroIndisponivel, setFiltroIndisponivel] = useState<boolean>(false);
   const [filtroBaixo, setFiltroBaixo] = useState<boolean>(false);
   const [filtroCritco, setFiltroCritco] = useState<boolean>(false);
+  const [filtroNegativos, setFiltroNegativos] = useState<boolean>(false);
 
   // Carregar o JSON de quantidades mínimas
   useEffect(() => {
@@ -36,12 +41,12 @@ export default function CafTable() {
       });
   }, []);
 
-  // Carregar estoque da unidade CAF
+  // Carregar estoque da unidade CAF (ajustado para usar a query do servidor)
   useEffect(() => {
     setLoading(true);
     setError(null);
     axios
-      .get("https://apianaliseestoque-production.up.railway.app/estoque/CAF")  // Endpoint para obter os dados da CAF
+      .get("https://apianaliseestoque-production.up.railway.app/estoque/CAF")  // Ajuste o endpoint conforme sua API
       .then((response) => {
         if (response.data && Array.isArray(response.data)) {
           setEstoque(response.data);
@@ -56,8 +61,7 @@ export default function CafTable() {
       });
   }, []);
 
-  // Função para calcular o status do medicamento
-    const calcularStatus = (nomeMedicamento: string, saldoEstoque: number) => {
+  const calcularStatus = (nomeMedicamento: string, estoqueAtual: number) => {
       const nomeMedicamentoLower = nomeMedicamento.toLowerCase();
   
       // Filtrar correspondências no JSON
@@ -66,16 +70,18 @@ export default function CafTable() {
       );
   
       // Define uma quantidade mínima padrão caso não seja encontrada no JSON
-      const minQuantidade = correspondencias.length === 0 ? 20 : quantidadesMinimas[correspondencias[0]];
+      const minQuantidade = correspondencias.length === 0 ? 50 : quantidadesMinimas[correspondencias[0]];
+
+      const estoqueAtualNumerico = Number(estoqueAtual);
   
-      if (saldoEstoque === 0) {
+      if (estoqueAtualNumerico  <= 0) {
         return { status: "Indisponível", color: "red", icon: <FaTimesCircle />, minQuantidade };
       }
-      if (saldoEstoque > minQuantidade) {
+      if (estoqueAtual > minQuantidade) {
         return { status: "OK", color: "green", icon: <FaCheckCircle/>, minQuantidade };
       }
       
-      if (saldoEstoque >= minQuantidade * 0.5) {
+      if (estoqueAtual >= minQuantidade * 0.5) {
         return { 
           status: "Baixo", 
           color: "gold", 
@@ -91,175 +97,280 @@ export default function CafTable() {
         minQuantidade 
       };
     };
-  
-    const calcularStatus2 = (nomeMedicamento: string, saldoEstoque: number) => {
-      const nomeMedicamentoLower = nomeMedicamento.toLowerCase();
-    
-      // Filtrar correspondências no JSON
-      const correspondencias = Object.keys(quantidadesMinimas).filter((medicamento) =>
-        nomeMedicamentoLower.includes(medicamento.toLowerCase())
-      );
-    
-      // Define uma quantidade mínima padrão caso não seja encontrada no JSON
-      const minQuantidade = correspondencias.length === 0 ? 20 : quantidadesMinimas[correspondencias[0]];
-    
-      if (saldoEstoque === 0) {
-        return { status: "Indisponível", color: "black", icon: <FaTimesCircle style={{ color: "red" }} />, minQuantidade };
-      }
-      if (saldoEstoque > minQuantidade) {
-        return { status: "OK", color: "black", icon: <FaCheckCircle style={{ color: "green" }} />, minQuantidade };
-      }
-      if (saldoEstoque >= minQuantidade * 0.5) {
-        return { status: "Baixo", color: "black", icon: <FaExclamationTriangle style={{ color: "gold" }} />, minQuantidade };
-      }
-      return { status: "Crítico", color: "black", icon: <FaExclamationCircle style={{ color: "darkorange" }} />, minQuantidade };
-    };
-    
-    // Funções para alternar os filtros
-    const toggleFiltroIndisponivel = () => setFiltroIndisponivel((prev) => !prev);
-    const toggleFiltroBaixo = () => setFiltroBaixo((prev) => !prev);
-    const toggleFiltroCritico = () => setFiltroCritco((prev) => !prev);
-    
-    // Filtrar estoque de acordo com os filtros aplicados
-    let estoqueFiltrado = estoque.filter((item) => {
-      const { status } = calcularStatus2(item.nome_medicamento, item.saldo_estoque);
-    
-      if (filtroIndisponivel && status !== "Indisponível") return false;
-      if (filtroBaixo && status !== "Baixo") return false;
-      if (filtroCritco && status !== "Crítico") return false;
-    
-      return true; // Mantém o item se passar pelos filtros
-    });
-    
-    // Aplicar filtro de pesquisa
-    const estoqueFinal = estoqueFiltrado.filter((item) =>
-      item.nome_medicamento.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const calcularStatus2 = (nomeMedicamento: string, estoqueAtual: number) => {
+    const nomeMedicamentoLower = nomeMedicamento.toLowerCase();
+
+    // Filtrar correspondências no JSON
+    const correspondencias = Object.keys(quantidadesMinimas).filter((medicamento) =>
+      nomeMedicamentoLower.includes(medicamento.toLowerCase())
     );
 
-    return (
-      <div className="estoque-caf-container-1">
-        {loading ? (
-          <div className="loading-container">
-            <div className="spinner"></div>
-            <p>Carregando unidades...</p>
-          </div>
-        ) : (
-          <>
-            {!error && estoque.length > 0 && (
-              <div>
-                <h2>Estoque da unidade CAF</h2>
-    
-                <div className="search-bar">
-                  <input
-                    type="text"
-                    placeholder="Pesquisar item..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-    
-                <div className="filtro-container">
-                  <button onClick={toggleFiltroIndisponivel}>
-                    {filtroIndisponivel ? "Mostrar Todos" : "Mostrar Indisponíveis"}
-                    <div className="info-container">
+    // Define uma quantidade mínima padrão caso não seja encontrada no JSON
+    const minQuantidade = correspondencias.length === 0 ? 50 : quantidadesMinimas[correspondencias[0]];
+    const estoqueAtualNumerico = Number(estoqueAtual);
+
+    // Retorna o status dependendo do estoque
+    if (estoqueAtualNumerico  <= 0) {
+      return { status: "Indisponível", color: "black", icon: <FaTimesCircle style={{ color: "red" }} />, minQuantidade };
+    }
+    if (estoqueAtual > minQuantidade) {
+      return { status: "OK", color: "black", icon: <FaCheckCircle style={{ color: "green" }} />, minQuantidade };
+    }
+    if (estoqueAtual >= minQuantidade * 0.5) {
+      return { status: "Baixo", color: "black", icon: <FaExclamationTriangle style={{ color: "gold" }} />, minQuantidade };
+    }
+    return { status: "Crítico", color: "black", icon: <FaExclamationCircle style={{ color: "darkorange" }} />, minQuantidade };
+  };
+
+// Funções para alternar os filtros
+const toggleFiltroIndisponivel = () => {
+  if (filtroIndisponivel) {
+    setFiltroIndisponivel(false);  // Desmarcar o filtro e mostrar todos
+  } else {
+    setFiltroIndisponivel(true);  // Ativar o filtro e desmarcar os outros
+    setFiltroBaixo(false);
+    setFiltroCritco(false);
+    setFiltroNegativos(false);
+  }
+};
+
+const toggleFiltroBaixo = () => {
+  if (filtroBaixo) {
+    setFiltroBaixo(false);  // Desmarcar o filtro e mostrar todos
+  } else {
+    setFiltroBaixo(true);  // Ativar o filtro e desmarcar os outros
+    setFiltroIndisponivel(false);
+    setFiltroCritco(false);
+    setFiltroNegativos(false);
+  }
+};
+
+const toggleFiltroCritico = () => {
+  if (filtroCritco) {
+    setFiltroCritco(false);  // Desmarcar o filtro e mostrar todos
+  } else {
+    setFiltroCritco(true);  // Ativar o filtro e desmarcar os outros
+    setFiltroIndisponivel(false);
+    setFiltroBaixo(false);
+    setFiltroNegativos(false);
+  }
+};
+
+const toggleFiltroNegativos = () => {
+  if (filtroNegativos) {
+    setFiltroNegativos(false);  // Desmarcar o filtro e mostrar todos
+  } else {
+    setFiltroNegativos(true);  // Ativar o filtro e desmarcar os outros
+    setFiltroIndisponivel(false);
+    setFiltroBaixo(false);
+    setFiltroCritco(false);
+  }
+};
+
+let estoqueFiltrado = estoque.filter((item) => {
+  if (!item.nome_medicamento || item.nome_medicamento.trim() === "") return false;
+
+  const { status } = calcularStatus2(item.nome_medicamento, item.estoque_atual);
+
+  // Aplica os filtros corretamente
+  if (filtroIndisponivel && status !== "Indisponível") return false;
+  if (filtroBaixo && status !== "Baixo") return false;
+  if (filtroCritco && status !== "Crítico") return false;
+  if (filtroNegativos && item.estoque_atual >= 0) return false;
+
+  return true;
+});
+
+
+  // Aplicar filtro de pesquisa
+
+  const exportarParaExcel = () => {
+    // Cria um array com os dados da tabela
+    const dados = estoqueFiltrado.map((item) => {
+      return {
+        "Nome do Item": item.nome_medicamento,
+        "Quantidade": item.quantidade,
+        "Quantidade Saída": item.quantidade_saida,
+        "Quantidade Total": item.estoque_atual,
+        "Lote": item.lote || "N/A",
+        "Data de Movimentação": item.data_atualizacao,
+        "Status": calcularStatus2(item.nome_medicamento, item.estoque_atual).status,
+      };
+    });
+  
+    // Cria uma planilha a partir dos dados
+    const ws = XLSX.utils.json_to_sheet(dados);
+  
+    // Cria um novo livro de trabalho
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Estoque');
+  
+    // Gera o arquivo Excel e dispara o download
+    XLSX.writeFile(wb, 'estoque.xlsx');
+  };
+
+
+  return (
+    <div className="estoque-caf-container-1">
+      {loading ? (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Carregando unidades...</p>
+        </div>
+      ) : (
+        <>
+          {!error && estoque.length > 0 && (
+            <div>
+              <h2>Estoque da unidade CAF</h2>
+  
+              <div className="search-bar">
+                <input
+                  type="text"
+                  placeholder="Pesquisar item..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} // Atualiza o termo de pesquisa
+                />
+              </div>
+  
+              <div className="filtro-container">
+                <button onClick={toggleFiltroIndisponivel}>
+                  {filtroIndisponivel ? "Mostrar Todos" : "Mostrar Indisponíveis"}
+                  <div className="info-container">
                       <i className="info-icon">i</i>
                       <div className="info-text">
                         Filtro para mostrar itens indisponíveis em estoque.
                       </div>
                     </div>
-                  </button>
-
-                  <button onClick={toggleFiltroBaixo}>
-                    {filtroBaixo ? "Mostrar Todos" : "Mostrar Estado Baixo"}
-                    <div className="info-container">
+                </button>
+  
+                <button onClick={toggleFiltroBaixo}>
+                  {filtroBaixo ? "Mostrar Todos" : "Mostrar Estado Baixo"}
+                  <div className="info-container">
                       <i className="info-icon">i</i>
                       <div className="info-text">
                         Filtro para mostrar itens com estoque baixo.
                       </div>
                     </div>
-                  </button>
-
-                  <button onClick={toggleFiltroCritico}>
-                    {filtroCritco ? "Mostrar Todos" : "Mostrar Estado Crítico"}
-                    <div className="info-container">
+                </button>
+  
+                <button onClick={toggleFiltroCritico}>
+                  {filtroCritco ? "Mostrar Todos" : "Mostrar Estado Crítico"}
+                  <div className="info-container">
                       <i className="info-icon">i</i>
                       <div className="info-text">
                         Filtro para mostrar itens em estado crítico de estoque.
                       </div>
                     </div>
-                  </button>
+                </button>
+  
+                <button onClick={toggleFiltroNegativos}>
+                  {filtroNegativos ? "Mostrar Todos" : "Mostrar Negativos"}
+                  <div className="info-container">
+                      <i className="info-icon">i</i>
+                      <div className="info-text">
+                        Filtro para mostrar itens em estado negativo no estoque.
+                      </div>
+                    </div>
+                </button>
+                <button onClick={exportarParaExcel}>Exportar</button>
+              </div>
+  
+              <div style={{ marginTop: "10px", marginBottom: "10px" }}>
+                  <h3>Tabela de Saldo em Estoque</h3>
                 </div>
- 
-                {/* Caixa rolável para a tabela */}
-                <div className="estoque-caf-container">
-                  <table className="estoque-table">
-                    <thead>
-                      <tr>
-                        <th>Nome do item</th>
-                        <th>Saldo em Estoque</th>
-                        <th>Lote</th>
-                        <th>Data de Movimentação</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {estoqueFiltrado.map((item) => {
-                        const status = calcularStatus2(item.nome_medicamento, item.saldo_estoque);
+
+              {/* Caixa rolável para a tabela */}
+              <div className="estoque-caf-container">
+                <table className="estoque-table">
+                  <thead>
+                    <tr>
+                      <th>Nome do item</th>
+                      <th>Quantidade</th>
+                      <th>Quantidade Saida</th>
+                      <th>Quantidade Total</th>
+                      <th>Lote</th>
+                      <th>Data de Movimentação</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {estoqueFiltrado
+                      .filter((item) =>
+                        item.nome_medicamento.toLowerCase().includes(searchTerm.toLowerCase())
+                      ) // Aplica o filtro de pesquisa
+                      .map((item) => {
+                        const status = calcularStatus2(item.nome_medicamento, item.estoque_atual);
                         return (
                           <tr key={item.id} style={{ backgroundColor: status.color + "30" }}>
                             <td>{item.nome_medicamento}</td>
-                            <td>{item.saldo_estoque}</td>
+                            <td>{item.quantidade}</td>
+                            <td>{item.quantidade_saida}</td>
+                            <td>{item.estoque_atual}</td>
                             <td>{item.lote || "N/A"}</td>
-                            <td>{item.data_movimentacao}</td>
+                            <td>{item.data_atualizacao}</td>
                             <td style={{ color: status.color }}>
                               {status.icon} {status.status}
                             </td>
                           </tr>
                         );
                       })}
-                    </tbody>
-                  </table>
-                </div>
-    
-                {/* Caixa rolável para as barras de progresso (excluindo "OK") */}
-                <div className="progress-container" style={{ maxHeight: "200px", overflowY: "auto" }}>
-                  {estoqueFiltrado.map((item) => {
-                    const status = calcularStatus(item.nome_medicamento, item.saldo_estoque);
-    
-                    // Mostrar barra de progresso apenas para status diferentes de "OK"
-                    if (status.status === "OK") return null;
-    
-                    const progresso = (item.saldo_estoque / status.minQuantidade) * 100;
-                    return (
-                      <div key={item.id} className="progress-bar-container">
-                        <div className="progress-bar-label">
-                          {item.nome_medicamento} - {status.status}
-                        </div>
-                        <div className="progress-bar-background">
-                          <div
-                            className="progress-bar-fill"
-                            style={{ width: `${progresso}%`, backgroundColor: status.color }}
-                          />
-                        </div>
-                        <div className="progress-bar-text">
-                          {item.saldo_estoque} / {status.minQuantidade}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                  </tbody>
+                </table>
               </div>
-            )}
-    
-            {!loading && estoque.length === 0 && !error && (
-              <p className="mensagem">Não há dados de estoque disponíveis para a unidade CAF.</p>
-            )}
-          </>
-        )}
-    
-        <footer className="footer">
-          <p>Desenvolvido por Órbita Tecnologia</p>
-        </footer>
-      </div>
-    );
+  
+              <div style={{ marginTop: "10px", marginBottom: "10px" }}>
+                  <h3>Barras de Progresso Quantidade em Estoque</h3>
+                </div>
+
+              <div className="progress-container" style={{ maxHeight: "200px", overflowY: "auto" }}>
+                {estoqueFiltrado
+                  .filter((item) =>
+                    item.nome_medicamento.toLowerCase().includes(searchTerm.toLowerCase())
+                  ) // Aplica o filtro de pesquisa
+                  .map((item) => {
+                    const status = calcularStatus(item.nome_medicamento, item.estoque_atual);
+                    const progresso = (item.estoque_atual / status.minQuantidade) * 100;
+                    // Garantir que estoqueAtual seja um número
+                    const estoqueAtual = typeof item.estoque_atual === 'string' ? parseFloat(item.estoque_atual) : item.estoque_atual;
+  
+                    return (
+                      <div key={item.id} className="progress-item" style={{ marginBottom: "10px" }}>
+                        {(() => {
+                          const { status, color, icon, minQuantidade } = calcularStatus(item.nome_medicamento, item.estoque_atual);
+                          return (
+                            <>
+                              <p>{item.nome_medicamento}: {status}</p>
+                              <div className="progress-bar" style={{ width: "100%", backgroundColor: "#e0e0e0", borderRadius: "5px" }}>
+                                <div
+                                  className="progress-fill"
+                                  style={{
+                                    width: `${progresso}%`,
+                                    backgroundColor: color,
+                                    height: "20px",
+                                    borderRadius: "5px",
+                                  }}
+                                />
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    );                    
+                  })}
+              </div>
+            </div>
+          )}
+  
+          {!loading && estoque.length === 0 && !error && (
+            <p className="mensagem">Não há dados de estoque disponíveis para a unidade CAF.</p>
+          )}
+        </>
+      )}
+  
+      <footer className="footer">
+        <p>Desenvolvido por Órbita Tecnologia</p>
+      </footer>
+    </div>
+  );  
   }    

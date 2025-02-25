@@ -46,7 +46,7 @@ body {
 /* Container centralizado com o flexbox */
 .estoque-caf-container-1 {
   width: 100%; /* Garantir que ocupe 100% da largura disponível */
-  max-width: 1100px;
+  max-width: auto;
   background: #fff;
   padding: 20px;
   border-radius: 8px;
@@ -121,6 +121,7 @@ body {
 /* Caixa rolável para a tabela */
 .estoque-tabela-container {
   max-height: 450px;  /* Ajuste conforme necessário */
+  
   overflow-y: auto;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -130,6 +131,7 @@ body {
 
 .estoque-caf-container {
     max-height: 400px;  /* Ajuste conforme necessário */
+    width: 1200px;
     overflow-y: auto;
     border: 1px solid #ddd;
     border-radius: 5px;

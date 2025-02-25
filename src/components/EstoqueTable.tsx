@@ -3,14 +3,18 @@ import axios from "axios";
 import React from "react";
 import { FaCheckCircle, FaExclamationTriangle, FaExclamationCircle, FaTimesCircle } from "react-icons/fa";
 import "../styles.css";
+import * as XLSX from 'xlsx';
 
 // Interface para os dados do estoque
 interface EstoqueItem {
-  id: number;
   nome_medicamento: string;
-  saldo_estoque: number;
+  estoque_atual: number;
   lote?: string;
-  data_movimentacao: string;
+  data_atualizacao: string;
+  local: string;
+  id: number;
+  quantidade_saida: number;
+  quantidade: number;
 }
 
 export default function EstoqueTable() {
@@ -24,6 +28,7 @@ export default function EstoqueTable() {
   const [filtroIndisponivel, setFiltroIndisponivel] = useState<boolean>(false);
   const [filtroBaixo, setFiltroBaixo] = useState<boolean>(false);
   const [filtroCritco, setFiltroCritco] = useState<boolean>(false);
+  const [filtroNegativos, setFiltroNegativos] = useState<boolean>(false);
 
   // Carregar o JSON de quantidades mínimas
   useEffect(() => {
@@ -81,85 +86,155 @@ export default function EstoqueTable() {
       });
   }, [unidadeSelecionada]);
 
-  // Função para calcular o status do medicamento
-  const calcularStatus = (nomeMedicamento: string, saldoEstoque: number) => {
-    const nomeMedicamentoLower = nomeMedicamento.toLowerCase();
-
-    // Filtrar correspondências no JSON
-    const correspondencias = Object.keys(quantidadesMinimas).filter((medicamento) =>
-      nomeMedicamentoLower.includes(medicamento.toLowerCase())
-    );
-
-    // Define uma quantidade mínima padrão caso não seja encontrada no JSON
-    const minQuantidade = correspondencias.length === 0 ? 20 : quantidadesMinimas[correspondencias[0]];
-
-    if (saldoEstoque === 0) {
-      return { status: "Indisponível", color: "red", icon: <FaTimesCircle />, minQuantidade };
-    }
-    if (saldoEstoque > minQuantidade) {
-      return { status: "OK", color: "green", icon: <FaCheckCircle/>, minQuantidade };
-    }
+  const calcularStatus = (nomeMedicamento: string, estoqueAtual: number) => {
+        const nomeMedicamentoLower = nomeMedicamento.toLowerCase();
     
-    if (saldoEstoque >= minQuantidade * 0.5) {
-      return { 
-        status: "Baixo", 
-        color: "gold", 
-        icon: <FaExclamationTriangle />, 
-        minQuantidade 
+        // Filtrar correspondências no JSON
+        const correspondencias = Object.keys(quantidadesMinimas).filter((medicamento) =>
+          nomeMedicamentoLower.includes(medicamento.toLowerCase())
+        );
+    
+        // Define uma quantidade mínima padrão caso não seja encontrada no JSON
+        const minQuantidade = correspondencias.length === 0 ? 50 : quantidadesMinimas[correspondencias[0]];
+  
+        const estoqueAtualNumerico = Number(estoqueAtual);
+    
+        if (estoqueAtualNumerico  <= 0) {
+          return { status: "Indisponível", color: "red", icon: <FaTimesCircle />, minQuantidade };
+        }
+        if (estoqueAtual > minQuantidade) {
+          return { status: "OK", color: "green", icon: <FaCheckCircle/>, minQuantidade };
+        }
+        
+        if (estoqueAtual >= minQuantidade * 0.5) {
+          return { 
+            status: "Baixo", 
+            color: "gold", 
+            icon: <FaExclamationTriangle />, 
+            minQuantidade 
+          };
+        }      
+        return { 
+          status: "Crítico", 
+          color: "tomato", 
+          icon: <FaExclamationCircle style={{ color: "darkorange" }} />,  // Ícone laranja
+          style: { color: "black", fontWeight: "bold" },  // Texto preto
+          minQuantidade 
+        };
       };
-    }      
-    return { 
-      status: "Crítico", 
-      color: "tomato", 
-      icon: <FaExclamationCircle style={{ color: "darkorange" }} />,  // Ícone laranja
-      style: { color: "black", fontWeight: "bold" },  // Texto preto
-      minQuantidade 
+  
+    const calcularStatus2 = (nomeMedicamento: string, estoqueAtual: number) => {
+      const nomeMedicamentoLower = nomeMedicamento.toLowerCase();
+  
+      // Filtrar correspondências no JSON
+      const correspondencias = Object.keys(quantidadesMinimas).filter((medicamento) =>
+        nomeMedicamentoLower.includes(medicamento.toLowerCase())
+      );
+  
+      // Define uma quantidade mínima padrão caso não seja encontrada no JSON
+      const minQuantidade = correspondencias.length === 0 ? 50 : quantidadesMinimas[correspondencias[0]];
+      const estoqueAtualNumerico = Number(estoqueAtual);
+  
+      // Retorna o status dependendo do estoque
+      if (estoqueAtualNumerico  <= 0) {
+        return { status: "Indisponível", color: "black", icon: <FaTimesCircle style={{ color: "red" }} />, minQuantidade };
+      }
+      if (estoqueAtual > minQuantidade) {
+        return { status: "OK", color: "black", icon: <FaCheckCircle style={{ color: "green" }} />, minQuantidade };
+      }
+      if (estoqueAtual >= minQuantidade * 0.5) {
+        return { status: "Baixo", color: "black", icon: <FaExclamationTriangle style={{ color: "gold" }} />, minQuantidade };
+      }
+      return { status: "Crítico", color: "black", icon: <FaExclamationCircle style={{ color: "darkorange" }} />, minQuantidade };
     };
-  };
-
-  const calcularStatus2 = (nomeMedicamento: string, saldoEstoque: number) => {
-    const nomeMedicamentoLower = nomeMedicamento.toLowerCase();
-  
-    // Filtrar correspondências no JSON
-    const correspondencias = Object.keys(quantidadesMinimas).filter((medicamento) =>
-      nomeMedicamentoLower.includes(medicamento.toLowerCase())
-    );
-  
-    // Define uma quantidade mínima padrão caso não seja encontrada no JSON
-    const minQuantidade = correspondencias.length === 0 ? 20 : quantidadesMinimas[correspondencias[0]];
-  
-    if (saldoEstoque === 0) {
-      return { status: "Indisponível", color: "black", icon: <FaTimesCircle style={{ color: "red" }} />, minQuantidade };
-    }
-    if (saldoEstoque > minQuantidade) {
-      return { status: "OK", color: "black", icon: <FaCheckCircle style={{ color: "green" }} />, minQuantidade };
-    }
-    if (saldoEstoque >= minQuantidade * 0.5) {
-      return { status: "Baixo", color: "black", icon: <FaExclamationTriangle style={{ color: "gold" }} />, minQuantidade };
-    }
-    return { status: "Crítico", color: "black", icon: <FaExclamationCircle style={{ color: "darkorange" }} />, minQuantidade };
-  };
   
   // Funções para alternar os filtros
-  const toggleFiltroIndisponivel = () => setFiltroIndisponivel((prev) => !prev);
-  const toggleFiltroBaixo = () => setFiltroBaixo((prev) => !prev);
-  const toggleFiltroCritico = () => setFiltroCritco((prev) => !prev);
+  const toggleFiltroIndisponivel = () => {
+    if (filtroIndisponivel) {
+      setFiltroIndisponivel(false);  // Desmarcar o filtro e mostrar todos
+    } else {
+      setFiltroIndisponivel(true);  // Ativar o filtro e desmarcar os outros
+      setFiltroBaixo(false);
+      setFiltroCritco(false);
+      setFiltroNegativos(false);
+    }
+  };
   
-  // Filtrar estoque de acordo com os filtros aplicados
+  const toggleFiltroBaixo = () => {
+    if (filtroBaixo) {
+      setFiltroBaixo(false);  // Desmarcar o filtro e mostrar todos
+    } else {
+      setFiltroBaixo(true);  // Ativar o filtro e desmarcar os outros
+      setFiltroIndisponivel(false);
+      setFiltroCritco(false);
+      setFiltroNegativos(false);
+    }
+  };
+  
+  const toggleFiltroCritico = () => {
+    if (filtroCritco) {
+      setFiltroCritco(false);  // Desmarcar o filtro e mostrar todos
+    } else {
+      setFiltroCritco(true);  // Ativar o filtro e desmarcar os outros
+      setFiltroIndisponivel(false);
+      setFiltroBaixo(false);
+      setFiltroNegativos(false);
+    }
+  };
+  
+  const toggleFiltroNegativos = () => {
+    if (filtroNegativos) {
+      setFiltroNegativos(false);  // Desmarcar o filtro e mostrar todos
+    } else {
+      setFiltroNegativos(true);  // Ativar o filtro e desmarcar os outros
+      setFiltroIndisponivel(false);
+      setFiltroBaixo(false);
+      setFiltroCritco(false);
+    }
+  };
+  
   let estoqueFiltrado = estoque.filter((item) => {
-    const { status } = calcularStatus2(item.nome_medicamento, item.saldo_estoque);
+    if (!item.nome_medicamento || item.nome_medicamento.trim() === "") return false;
   
+    const { status } = calcularStatus2(item.nome_medicamento, item.estoque_atual);
+  
+    // Aplica os filtros corretamente
     if (filtroIndisponivel && status !== "Indisponível") return false;
     if (filtroBaixo && status !== "Baixo") return false;
     if (filtroCritco && status !== "Crítico") return false;
+    if (filtroNegativos && item.estoque_atual >= 0) return false;
   
-    return true; // Mantém o item se passar pelos filtros
+    return true;
   });
   
-  // Aplicar filtro de pesquisa
-  const estoqueFinal = estoqueFiltrado.filter((item) =>
-    item.nome_medicamento.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  
+    // Aplicar filtro de pesquisa
+  
+    const exportarParaExcel = () => {
+      // Cria um array com os dados da tabela
+      const dados = estoqueFiltrado.map((item) => {
+        return {
+          "Nome do Item": item.nome_medicamento,
+          "Quantidade": item.quantidade,
+          "Quantidade Saída": item.quantidade_saida,
+          "Quantidade Total": item.estoque_atual,
+          "Lote": item.lote || "N/A",
+          "Data de Movimentação": item.data_atualizacao,
+          "Local": item.local,
+          "Status": calcularStatus2(item.nome_medicamento, item.estoque_atual).status,
+        };
+      });
+    
+      // Cria uma planilha a partir dos dados
+      const ws = XLSX.utils.json_to_sheet(dados);
+    
+      // Cria um novo livro de trabalho
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Estoque');
+    
+      // Gera o arquivo Excel e dispara o download
+      XLSX.writeFile(wb, 'estoque.xlsx');
+    };
   
   return (
     <>
@@ -229,11 +304,23 @@ export default function EstoqueTable() {
                       </div>
                     </div>
                   </button>
+
+                  <button onClick={toggleFiltroNegativos}>
+                  {filtroNegativos ? "Mostrar Todos" : "Mostrar Negativos"}
+                  <div className="info-container">
+                      <i className="info-icon">i</i>
+                      <div className="info-text">
+                        Filtro para mostrar itens em estado negativo no estoque.
+                      </div>
+                    </div>
+                </button>
+
+                  <button onClick={exportarParaExcel}>Exportar</button>
                 </div>
               )}
   
             {/* Exibe o estoque se a unidade for selecionada e o estoque estiver disponível */}
-            {unidadeSelecionada && estoqueFinal.length > 0 && (
+            {unidadeSelecionada && estoqueFiltrado.length > 0 && (
               <div>
               <h2>
                 Estoque de {unidadeSelecionada}
@@ -247,6 +334,9 @@ export default function EstoqueTable() {
             
   
                 {/* Tabela de Estoque */}
+                <div style={{ marginTop: "10px", marginBottom: "10px" }}>
+                  <h3>Tabela de Saldo em Estoque</h3>
+                </div>
                 <div className="estoque-tabela-container">
                   <table className="estoque-table">
                     <thead>
@@ -259,18 +349,24 @@ export default function EstoqueTable() {
                       </tr>
                     </thead>
                     <tbody>
-                      {estoqueFinal.map((item) => {
-                        const status = calcularStatus2(item.nome_medicamento, item.saldo_estoque);
+                    {estoqueFiltrado
+                      .filter((item) =>
+                        item.nome_medicamento.toLowerCase().includes(searchTerm.toLowerCase())
+                      ) // Aplica o filtro de pesquisa
+                      .map((item) => {
+                        const status = calcularStatus2(item.nome_medicamento, item.estoque_atual);
                         return (
+                          <>
                           <tr key={item.id} style={{ backgroundColor: status.color + "30" }}>
                             <td>{item.nome_medicamento}</td>
-                            <td>{item.saldo_estoque}</td>
+                            <td>{item.estoque_atual}</td>
                             <td>{item.lote || "N/A"}</td>
-                            <td>{item.data_movimentacao}</td>
+                            <td>{item.data_atualizacao}</td>
                             <td style={{ color: status.color }}>
                               {status.icon} {status.status}
                             </td>
                           </tr>
+                          </>
                         );
                       })}
                     </tbody>
@@ -278,12 +374,16 @@ export default function EstoqueTable() {
                 </div>
   
                 {/* Barra de Progresso */}
+                <div style={{ marginTop: "10px", marginBottom: "10px" }}>
+                  <h3>Barras de Progresso Quantidade em Estoque</h3>
+                </div>
+
                 <div className="progress-container" style={{ maxHeight: "250px", overflowY: "auto" }}>
-                  {estoqueFinal.map((item) => {
-                    const status = calcularStatus(item.nome_medicamento, item.saldo_estoque);
+                  {estoqueFiltrado.map((item) => {
+                    const status = calcularStatus(item.nome_medicamento, item.estoque_atual);
                     if (status.status === "OK") return null;
   
-                    const progresso = (item.saldo_estoque / status.minQuantidade) * 100;
+                    const progresso = (item.estoque_atual / status.minQuantidade) * 100;
                     return (
                       <div key={item.id} className="progress-bar-container">
                         <div className="progress-bar-label">
@@ -296,7 +396,7 @@ export default function EstoqueTable() {
                           />
                         </div>
                         <div className="progress-bar-text">
-                          {item.saldo_estoque} / {status.minQuantidade}
+                          {item.estoque_atual} / {status.minQuantidade}
                         </div>
                       </div>
                     );
@@ -305,7 +405,7 @@ export default function EstoqueTable() {
               </div>
             )}
   
-            {unidadeSelecionada && estoqueFinal.length === 0 && !loading && (
+            {unidadeSelecionada && estoqueFiltrado.length === 0 && !loading && (
               <p className="mensagem">Não há dados de estoque disponíveis para esta unidade.</p>
             )}
           </div>
