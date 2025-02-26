@@ -32,6 +32,7 @@ export default function Dashboard() {
   const [dados, setDados] = useState<Item[]>([]);
   const [tabIndex, setTabIndex] = useState(0);
   const [unidadeSelecionada, setUnidadeSelecionada] = useState<string>("");
+  const [expandedItems, setExpandedItems] = useState<string[]>([]);
   
   useEffect(() => {
     axios.get("https://apianaliseestoque-production.up.railway.app/dados").then((res) => setDados(res.data));
@@ -69,6 +70,12 @@ export default function Dashboard() {
       
     ];
   });
+
+  const toggleExpand = (material: string) => {
+    setExpandedItems((prev) =>
+      prev.includes(material) ? prev.filter((item) => item !== material) : [...prev, material]
+    );
+  };
 
   const dataForChartGrouped: {
     data: string;
@@ -156,133 +163,149 @@ const groupedData = dataForChart.reduce((acc, curr) => {
       });
     });    
 
-    return (
-      <div className="p-4">
-        {/* Título */}
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#333', marginTop: 5 }}>
-          Resumo de Saídas do Estoque
-        </Typography>
-        
-        {/* Abas */}
-        <AppBar position="static" sx={{ borderRadius: 2 }}>
-          <Tabs
-            value={tabIndex}
-            onChange={handleTabChange}
-            sx={{
-              backgroundColor: '#f5f5f5',
-              color: '#007a10', // Cor do texto da aba
-              "& .MuiTab-root": {
-                fontWeight: 'bold', // Fonte em negrito
-                color: '#007a10', // Cor do texto das abas
-                borderBottom: '3px solid transparent', // Linha invisível no fundo
-                transition: 'border-color 0.3s', // Animação suave para a linha
-              },
-              "& .MuiTab-root:hover": {
-                backgroundColor: '#e0e0e0', // Cor de fundo no hover
-                color: '#007a10', // Cor do texto no hover (verde)
-              },
-              "& .Mui-selected": {
-                borderBottom: '3px solid #007a10', // Linha verde quando a aba estiver selecionada
-              },
-            }}
-          >
-            <Tab label="Saldo Estoque" />
-            <Tab label="Entradas - CAF" />
-            <Tab label="Saídas - Unidades" />
-          </Tabs>
-        </AppBar>
+return (
+  <div className="p-4" style={{ backgroundColor: '#f0f8f5' }}> 
+    {/* Título */}
+    <Typography variant="h4" gutterBottom sx={{ fontWeight: 'bold', color: '#064e3b', marginTop: 5 }}>
+      Resumo de Saídas do Estoque
+    </Typography>
+    
+    {/* Abas */}
+    <AppBar position="static" sx={{ borderRadius: 2, backgroundColor: '#064e3b' }}>
+      <Tabs
+        value={tabIndex}
+        onChange={handleTabChange}
+        sx={{
+          "& .MuiTab-root": {
+            fontWeight: 'bold',
+            color: '#ffffff',
+            borderBottom: '3px solid transparent',
+            transition: 'border-color 0.3s',
+          },
+          "& .MuiTab-root:hover": {
+            backgroundColor: '#065f46',
+            color: '#d1fae5',
+          },
+          "& .Mui-selected": {
+            borderBottom: '3px solid #a7f3d0',
+            color: '#d1fae5'
+          },
+        }}
+      >
+        <Tab label="Saldo Estoque" />
+        <Tab label="Entradas - CAF" />
+        <Tab label="Saídas - Unidades" />
+      </Tabs>
+    </AppBar>
 
-    
-        {/* Conteúdo da Tab 1: Tabela de Entradas */}
-        {tabIndex === 1 && (
-          <Box sx={{ mt: 2, maxHeight: 700, overflowY: "auto", borderRadius: 2, backgroundColor: '#fff', padding: 2 }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333', marginBottom: 2 }}>
-              Tabela de Entradas na CAF
-            </Typography>
-            {dadosFiltrados.map((item) => (
-              <Box key={item.material} sx={{ mb: 4, backgroundColor: '#f9f9f9', borderRadius: 2, padding: 2, boxShadow: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#555' }}>
-                  {item.material}
-                </Typography>
-                <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Data</TableCell>
-                        <TableCell>Quantidade</TableCell>
-                        <TableCell>Lote</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {item.entradas.map((entrada, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{entrada.data}</TableCell>
-                          <TableCell>{entrada.quantidade}</TableCell>
-                          <TableCell>{entrada.lote}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Box>
-            ))}
-          </Box>
+    {/* Conteúdo das Abas */}
+{tabIndex === 1 && (
+  <Box sx={{ mt: 2, maxHeight: 700, overflowY: "auto", borderRadius: 2, backgroundColor: "#ffffff", padding: 2 }}>
+    <Typography variant="h5" sx={{ fontWeight: "bold", color: "#064e3b", marginBottom: 2 }}>
+      Tabela de Entradas na CAF
+    </Typography>
+    {dadosFiltrados.map((item) => (
+      <Box key={item.material} sx={{ mb: 4, backgroundColor: "#ffffff", borderRadius: 2, padding: 2, boxShadow: 2 }}>
+        {/* Nome do Material - Clicável */}
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: "bold", color: "#064e3b", cursor: "pointer" }}
+          onClick={() => toggleExpand(item.material)}
+        >
+          {item.material}
+        </Typography>
+
+        {/* Renderiza a tabela apenas se o item estiver expandido */}
+        {expandedItems.includes(item.material) && (
+          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 1 }}>
+            <Table>
+              <TableHead sx={{ backgroundColor: "#34d399" }}>
+                <TableRow>
+                  <TableCell>Data</TableCell>
+                  <TableCell>Quantidade</TableCell>
+                  <TableCell>Lote</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {item.entradas.map((entrada, index) => (
+                  <TableRow key={index} sx={{ "&:nth-of-type(odd)": { backgroundColor: "#ffffff" } }}>
+                    <TableCell>{entrada.data}</TableCell>
+                    <TableCell>{entrada.quantidade}</TableCell>
+                    <TableCell>{entrada.lote}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
-    
-        {/* Conteúdo da Tab 2: Tabela de Saídas */}
-        {tabIndex === 2 && (
-          <Box sx={{ mt: 2, maxHeight: 700, overflowY: "auto", borderRadius: 2, backgroundColor: '#fff', padding: 2 }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333', marginBottom: 2 }}>
-              Tabela de Saídas das Unidades
-            </Typography>
-            {dadosFiltrados.map((item) => (
-              <Box key={item.material} sx={{ mb: 4, backgroundColor: '#f9f9f9', borderRadius: 2, padding: 2, boxShadow: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#555' }}>
-                  {item.material}
-                </Typography>
-                <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Data</TableCell>
-                        <TableCell>Unidade</TableCell>
-                        <TableCell>Quantidade</TableCell>
-                        <TableCell>Lote</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {item.saidas
-                        .filter((saida) => saida.quantidade && Number(saida.quantidade) > 0) // Filtra valores não numéricos e zero
-                        .map((saida, index) => (
-                          <TableRow key={index}>
-                            <TableCell>{saida.data}</TableCell>
-                            <TableCell>{saida.unidade}</TableCell>
-                            <TableCell>{saida.quantidade}</TableCell>
-                            <TableCell>{saida.lote}</TableCell>
-                          </TableRow>
-                        ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Box>
-            ))}
-          </Box>
+      </Box>
+    ))}
+  </Box>
+)}
+
+{/* Conteúdo da Tab de Saídas */}
+{tabIndex === 2 && (
+  <Box sx={{ mt: 2, maxHeight: 700, overflowY: "auto", borderRadius: 2, backgroundColor: "#ffffff", padding: 2 }}>
+    <Typography variant="h5" sx={{ fontWeight: "bold", color: "#064e3b", marginBottom: 2 }}>
+      Tabela de Saídas das Unidades
+    </Typography>
+    {dadosFiltrados.map((item) => (
+      <Box key={item.material} sx={{ mb: 4, backgroundColor: "#ffffff", borderRadius: 2, padding: 2, boxShadow: 2 }}>
+        {/* Nome do Material - Clicável */}
+        <Typography
+          variant="h6"
+          sx={{ fontWeight: "bold", color: "#065f46", cursor: "pointer" }}
+          onClick={() => toggleExpand(item.material)}
+        >
+          {item.material}
+        </Typography>
+
+        {/* Renderiza a tabela apenas se o item estiver expandido */}
+        {expandedItems.includes(item.material) && (
+          <TableContainer component={Paper} sx={{ borderRadius: 2, mt: 1 }}>
+            <Table>
+              <TableHead sx={{ backgroundColor: "#34d399" }}>
+                <TableRow>
+                  <TableCell>Data</TableCell>
+                  <TableCell>Unidade</TableCell>
+                  <TableCell>Quantidade</TableCell>
+                  <TableCell>Lote</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {item.saidas
+                  .filter((saida) => saida.quantidade && Number(saida.quantidade) > 0)
+                  .map((saida, index) => (
+                    <TableRow key={index} sx={{ "&:nth-of-type(odd)": { backgroundColor: "#ffffff" } }}>
+                      <TableCell>{saida.data}</TableCell>
+                      <TableCell>{saida.unidade}</TableCell>
+                      <TableCell>{saida.quantidade}</TableCell>
+                      <TableCell>{saida.lote}</TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
         )}
-    
-        {/* Conteúdo da Tab 0: Saldo em Estoque */}
-        {tabIndex === 0 && (
-          <Box sx={{ mt: 2, maxHeight: 700, width: 1200, overflowY: "auto", overflowX: "auto", borderRadius: 2, backgroundColor: '#fff', padding: 2 }}>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333', marginBottom: 2 }}>
-              Saldo em Estoque após saídas
-            </Typography>
-            <SaldoTabela />
-          </Box>
-        )}
-    
-        <footer className="footer">
-                  <p>Desenvolvido por Órbita Tecnologia</p>
-                </footer>
-      </div>
-      
-    );    
+      </Box>
+    ))}
+  </Box>
+)}
+
+    {/* Saldo Estoque */}
+    {tabIndex === 0 && (
+      <Box sx={{ maxHeight: 700, width: 1200, overflowY: "auto", overflowX: "auto", borderRadius: 2, backgroundColor: '#ffffff', padding: 2 }}>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#064e3b', marginBottom: 2 }}>
+          Saldo em Estoque após saídas
+        </Typography>
+        <SaldoTabela />
+      </Box>
+    )}
+
+    {/* Rodapé */}
+    <footer className="footer" style={{ textAlign: 'center', padding: 10, backgroundColor: '#065f46', color: '#d1fae5', borderRadius: 4 }}>
+      <p>Desenvolvido por Órbita Tecnologia</p>
+    </footer>
+  </div>
+);
 }

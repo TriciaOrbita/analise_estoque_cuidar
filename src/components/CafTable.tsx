@@ -72,7 +72,7 @@ export default function CafTable() {
       // Define uma quantidade mínima padrão caso não seja encontrada no JSON
       const minQuantidade = correspondencias.length === 0 ? 50 : quantidadesMinimas[correspondencias[0]];
 
-      const estoqueAtualNumerico = Number(estoqueAtual);
+      const estoqueAtualNumerico = Math.max(0, Number(estoqueAtual));
   
       if (estoqueAtualNumerico  <= 0) {
         return { status: "Indisponível", color: "red", icon: <FaTimesCircle />, minQuantidade };
@@ -91,7 +91,7 @@ export default function CafTable() {
       }      
       return { 
         status: "Crítico", 
-        color: "tomato", 
+        color: "darkorange", 
         icon: <FaExclamationCircle style={{ color: "darkorange" }} />,  // Ícone laranja
         style: { color: "black", fontWeight: "bold" },  // Texto preto
         minQuantidade 
@@ -108,7 +108,7 @@ export default function CafTable() {
 
     // Define uma quantidade mínima padrão caso não seja encontrada no JSON
     const minQuantidade = correspondencias.length === 0 ? 50 : quantidadesMinimas[correspondencias[0]];
-    const estoqueAtualNumerico = Number(estoqueAtual);
+    const estoqueAtualNumerico = Math.max(0, Number(estoqueAtual));
 
     // Retorna o status dependendo do estoque
     if (estoqueAtualNumerico  <= 0) {
@@ -157,18 +157,11 @@ const toggleFiltroCritico = () => {
   }
 };
 
-const toggleFiltroNegativos = () => {
-  if (filtroNegativos) {
-    setFiltroNegativos(false);  // Desmarcar o filtro e mostrar todos
-  } else {
-    setFiltroNegativos(true);  // Ativar o filtro e desmarcar os outros
-    setFiltroIndisponivel(false);
-    setFiltroBaixo(false);
-    setFiltroCritco(false);
-  }
-};
-
-let estoqueFiltrado = estoque.filter((item) => {
+let estoqueFiltrado = estoque.map((item) => {
+  // Tratar estoque negativo como 0
+  item.estoque_atual = Math.max(item.estoque_atual, 0);
+  return item;
+}).filter((item) => {
   if (!item.nome_medicamento || item.nome_medicamento.trim() === "") return false;
 
   const { status } = calcularStatus2(item.nome_medicamento, item.estoque_atual);
@@ -177,7 +170,6 @@ let estoqueFiltrado = estoque.filter((item) => {
   if (filtroIndisponivel && status !== "Indisponível") return false;
   if (filtroBaixo && status !== "Baixo") return false;
   if (filtroCritco && status !== "Crítico") return false;
-  if (filtroNegativos && item.estoque_atual >= 0) return false;
 
   return true;
 });
@@ -192,7 +184,7 @@ let estoqueFiltrado = estoque.filter((item) => {
         "Nome do Item": item.nome_medicamento,
         "Quantidade": item.quantidade,
         "Quantidade Saída": item.quantidade_saida,
-        "Quantidade Total": item.estoque_atual,
+        "Quantidade Total": Math.max(0, item.estoque_atual), // Garantir que valores negativos sejam zero
         "Lote": item.lote || "N/A",
         "Data de Movimentação": item.data_atualizacao,
         "Status": calcularStatus2(item.nome_medicamento, item.estoque_atual).status,
@@ -208,7 +200,7 @@ let estoqueFiltrado = estoque.filter((item) => {
   
     // Gera o arquivo Excel e dispara o download
     XLSX.writeFile(wb, 'estoque.xlsx');
-  };
+  };  
 
 
   return (
@@ -264,15 +256,6 @@ let estoqueFiltrado = estoque.filter((item) => {
                     </div>
                 </button>
   
-                <button onClick={toggleFiltroNegativos}>
-                  {filtroNegativos ? "Mostrar Todos" : "Mostrar Negativos"}
-                  <div className="info-container">
-                      <i className="info-icon">i</i>
-                      <div className="info-text">
-                        Filtro para mostrar itens em estado negativo no estoque.
-                      </div>
-                    </div>
-                </button>
                 <button onClick={exportarParaExcel}>Exportar</button>
               </div>
   
@@ -323,42 +306,30 @@ let estoqueFiltrado = estoque.filter((item) => {
                   <h3>Barras de Progresso Quantidade em Estoque</h3>
                 </div>
 
-              <div className="progress-container" style={{ maxHeight: "200px", overflowY: "auto" }}>
-                {estoqueFiltrado
-                  .filter((item) =>
-                    item.nome_medicamento.toLowerCase().includes(searchTerm.toLowerCase())
-                  ) // Aplica o filtro de pesquisa
-                  .map((item) => {
+                <div className="progress-container" style={{ maxHeight: "250px", overflowY: "auto" }}>
+                  {estoqueFiltrado.map((item) => {
                     const status = calcularStatus(item.nome_medicamento, item.estoque_atual);
-                    const progresso = (item.estoque_atual / status.minQuantidade) * 100;
-                    // Garantir que estoqueAtual seja um número
-                    const estoqueAtual = typeof item.estoque_atual === 'string' ? parseFloat(item.estoque_atual) : item.estoque_atual;
+                    if (status.status === "OK") return null;
   
+                    const progresso = (item.estoque_atual / status.minQuantidade) * 100;
                     return (
-                      <div key={item.id} className="progress-item" style={{ marginBottom: "10px" }}>
-                        {(() => {
-                          const { status, color, icon, minQuantidade } = calcularStatus(item.nome_medicamento, item.estoque_atual);
-                          return (
-                            <>
-                              <p>{item.nome_medicamento}: {status}</p>
-                              <div className="progress-bar" style={{ width: "100%", backgroundColor: "#e0e0e0", borderRadius: "5px" }}>
-                                <div
-                                  className="progress-fill"
-                                  style={{
-                                    width: `${progresso}%`,
-                                    backgroundColor: color,
-                                    height: "20px",
-                                    borderRadius: "5px",
-                                  }}
-                                />
-                              </div>
-                            </>
-                          );
-                        })()}
+                      <div key={item.id} className="progress-bar-container">
+                        <div className="progress-bar-label">
+                          {item.nome_medicamento} - {status.status}
+                        </div>
+                        <div className="progress-bar-background">
+                          <div
+                            className="progress-bar-fill"
+                            style={{ width: `${progresso}%`, backgroundColor: status.color }}
+                          />
+                        </div>
+                        <div className="progress-bar-text">
+                          {item.estoque_atual} / {status.minQuantidade}
+                        </div>
                       </div>
-                    );                    
+                    );
                   })}
-              </div>
+                </div>
             </div>
           )}
   

@@ -87,71 +87,57 @@ const SaldoTabela: React.FC = () => {
 
   const saldos = calcularSaldos();
 
-  if (loading) return <div className="loading"><CircularProgress /></div>;
-  if (error) return <p className="error">{error}</p>;
+  if (loading) return <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}><CircularProgress /></div>;
+  if (error) return <p style={{ textAlign: 'center', color: 'red' }}>{error}</p>;
 
   return (
-    <Box sx={{ padding: 2, maxWidth: 1200, margin: '0 auto', backgroundColor: '#ffffff' }}>
+    <Box sx={{ padding: 1, maxWidth: 1200, margin: '0 auto', backgroundColor: '#f9fafb' }}>
       {saldos.map(({ material, lote, entradaTotal, saidaTotal, saldo, unidades }) => (
         <Box key={`${material}-${lote}`} sx={{ marginBottom: 2 }}>
           <Box
             onClick={() => setExpandedRow(expandedRow === `${material}-${lote}` ? null : `${material}-${lote}`)}
             sx={{
-              backgroundColor: '#fff',
-              border: '1px solid #ddd',
-              borderRadius: 2,
-              marginBottom: 2,
+              backgroundColor: '#ffffff',
+              border: '1px solid #ccc',
+              borderRadius: 3,
               padding: 2,
               display: 'flex',
               justifyContent: 'space-between',
+              alignItems: 'center',
               cursor: 'pointer',
-              boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-              transition: 'background-color 0.3s, transform 0.3s',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+              transition: 'transform 0.2s ease-in-out, box-shadow 0.2s',
               '&:hover': {
-                backgroundColor: '#f5f5f5',
-                transform: 'scale(1.03)', // Animação de escala ao passar o mouse
+                transform: 'scale(1.02)',
+                boxShadow: '0 6px 12px rgba(0, 0, 0, 0.15)',
               },
             }}
           >
-            <Typography sx={{ fontSize: 16, fontWeight: 'bold' }}>
-              {material} - {lote} - Entrada: {entradaTotal} - Saída: {saidaTotal} - Quantidade Total: {saldo}
+            <Typography sx={{ fontSize: 16, fontWeight: 'bold', color: '#37513b' }}>
+              {material} - {lote} - Entrada: {entradaTotal} - Saída: {saidaTotal} - Saldo: {saldo}
             </Typography>
           </Box>
           <Collapse in={expandedRow === `${material}-${lote}`}>
-            <Box sx={{ paddingLeft: 2, marginTop: 1 }}>
-              {unidades ? (
-                <>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#333', marginBottom: 1 }}>
-                    Unidades que tiveram saídas e quantidade
-                  </Typography>
+            <Box sx={{ padding: 2, backgroundColor: '#ffffff', borderRadius: 2, marginTop: 1 }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1eaf36', marginBottom: 1 }}>
+                Unidades e quantidades
+              </Typography>
+              <Box sx={{ maxHeight: 300, overflowY: 'auto', paddingRight: 1, '&::-webkit-scrollbar': { width: 6 }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#006b0e', borderRadius: 3 } }}>
+                {unidades.split(", ").map((unidade, index) => (
                   <Box
+                    key={index}
                     sx={{
-                      maxHeight: 300, // Defina o tamanho máximo para a área rolável
-                      overflowY: 'auto', // Permite rolagem vertical
-                      paddingRight: 1,
+                      backgroundColor: '#e6fde8',
+                      borderRadius: 4,
+                      padding: 1.5,
+                      marginBottom: 1,
+                      boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
                     }}
                   >
-                    {unidades.split(", ").map((unidade, index) => (
-                      <Box
-                        key={index}
-                        sx={{
-                          backgroundColor: '#e2fde0', // Fundo claro para separar os itens
-                          borderRadius: 4, // Bordas arredondadas
-                          padding: 1.5, // Espaçamento interno
-                          marginBottom: 1, // Espaçamento entre os itens
-                          boxShadow: '0 2px 5px rgba(0,0,0,0.1)', // Sombra suave para destaque
-                        }}
-                      >
-                        <Typography sx={{ fontSize: 16, color: '#555' }}>
-                          {unidade}
-                        </Typography>
-                      </Box>
-                    ))}
+                    <Typography sx={{ fontSize: 16, color: '#023b13' }}>{unidade}</Typography>
                   </Box>
-                </>
-              ) : (
-                <Typography sx={{ fontSize: 16, color: '#777' }}>Nenhuma</Typography>
-              )}
+                ))}
+              </Box>
             </Box>
           </Collapse>
         </Box>

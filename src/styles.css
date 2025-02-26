@@ -9,7 +9,7 @@ body {
   font-family: Arial, sans-serif;
   background-color: #f4f6f9;
   color: #333;
-  height: 100vh; /* Garantir que o corpo ocupe toda a altura da tela */
+  height: 110vh; /* Garantir que o corpo ocupe toda a altura da tela */
   display: flex; /* Usando Flexbox */
   justify-content: center; /* Centraliza horizontalmente */
   align-items: center; /* Centraliza verticalmente */
@@ -372,174 +372,194 @@ button {
     visibility: visible;
     opacity: 1;
   }
-  
 
-  /* Ajustes para telas menores */
-@media (max-width: 768px) {
+  /* Estilo para telas menores que 1920x1080 */
+@media (max-width: 1900px) {
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    height: 120vh; /* Garantir que o corpo ocupe toda a altura da tela */
+    display: flex; /* Usando Flexbox */
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+  }
 
-  /* Container principal */
-  .estoque-container,
-  .estoque-geral-container,
-  .estoque-caf-container-1 {
-    padding: 15px; /* Menor padding em telas pequenas */
-    width: 100%;
+  .estoque-container {
+    max-width: 80%;
+    padding: 15px;
+  }
+
+  /* Ajusta o container geral */
+  .estoque-geral-container {
     max-width: 100%;
+    padding: 15px;
+    top: 5%;
+    transform: translate(0%, 5%);
   }
 
-  /* Barra de pesquisa */
-  .search-bar input {
-    width: 100%;
-    padding: 10px 12px; /* Menor espaçamento */
-    font-size: 14px;
+  /* Ajusta o container CAF */
+  .estoque-caf-container-1 {
+    max-width: 100%;
+    padding: 15px;
+    top: 5%;
+    transform: translate(0%, 5%);
   }
 
-  /* Select */
+  /* Ajusta o select */
   .estoque-select {
-    width: 100%;
-    padding: 10px 12px;
     font-size: 14px;
+    padding: 10px;
+    margin-bottom: 10px;
   }
 
-  /* Tabela */
+  /* Ajusta a tabela */
   .estoque-table th,
   .estoque-table td {
-    padding: 10px; /* Menor padding */
+    padding: 10px;
+  }
+
+  /* Ajusta a barra de pesquisa */
+  .search-bar input {
     font-size: 14px;
+    padding: 10px;
   }
 
-  .estoque-table th {
-    font-size: 16px;
+  /* Ajusta o botão */
+  button {
+    font-size: 14px;
+    padding: 8px 15px;
   }
 
-  /* Progresso */
+  /* Ajusta a largura das tabelas roláveis */
+  .estoque-tabela-container,
+  .estoque-caf-container {
+    max-height: 350px;
+  }
+
+  /* Ajusta a barra de progresso */
   .progress-bar-container {
-    margin-bottom: 8px; /* Menor espaçamento */
-  }
-
-  .progress-bar-label {
-    font-size: 12px;
+    margin-bottom: 8px;
   }
 
   .progress-bar-fill {
-    height: 8px; /* Reduz altura das barras de progresso */
+    height: 8px;
   }
 
   .progress-bar-text {
-    font-size: 10px; /* Menor tamanho de texto */
+    font-size: 10px;
   }
 
-  /* Botões */
-  button {
-    font-size: 14px; /* Ajusta o tamanho do botão */
-    padding: 8px 15px; /* Ajusta o espaçamento do botão */
+  /* Ajusta o ícone de informação */
+  .info-icon {
+    font-size: 14px;
+    padding: 6px;
   }
 
-  /* Caixa rolável */
-  .estoque-tabela-container,
-  .estoque-caf-container {
-    max-height: 300px; /* Limita a altura das tabelas */
-  }
-
-  /* Filtro */
-  .filtro-container {
-    flex-direction: column; /* Coloca os botões em coluna */
-    align-items: center; /* Centraliza os botões */
-    gap: 5px; /* Menor espaçamento entre os botões */
-  }
-
-  /* Info container */
-  .info-container {
-    margin-left: 0; /* Ajusta o espaçamento para o ícone */
-  }
-
-  /* Info text */
   .info-text {
-    width: auto;
-    font-size: 12px; /* Ajusta o tamanho da fonte */
-    max-width: 150px;
+    font-size: 12px;
+    width: 200px;
   }
 
-  /* Footer */
+  /* Ajusta o footer */
   .footer {
-    font-size: 12px; /* Diminui o tamanho da fonte do rodapé */
+    font-size: 12px;
   }
 
-  /* Ajuste de posição para centralizar */
-  .estoque-geral-container,
-  .estoque-caf-container-1 {
-    top: 0;
-    transform: translate(0%, 0%);
-    position: relative;
+  /* Ajusta a exibição dos botões de filtro */
+  .filtro-container button {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  /* Ajusta o layout para telas pequenas */
+  .loading-container {
+    font-size: 14px;
   }
 }
 
-/* Ajustes para telas pequenas (celular) */
-@media (max-width: 480px) {
-  
-  /* Container principal */
+/* Estilo para telas menores que 1280px */
+@media (max-width: 1280px) {
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    height: 120vh; /* Garantir que o corpo ocupe toda a altura da tela */
+    display: flex; /* Usando Flexbox */
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+  }
+
+h2, h3 {
+  display: flex;
+  display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+    flex-direction: column; /* Organiza os itens em coluna */
+    text-align: center;
+    padding: 20px;
+}
+
   .estoque-container,
   .estoque-geral-container,
   .estoque-caf-container-1 {
-    padding: 10px; /* Menor padding */
-    width: 100%;
+    padding: 10px;
+    width: 95%;
+    display: flex;
+    justify-content: center; /* Centraliza horizontalmente */
+    align-items: center; /* Centraliza verticalmente */
+    flex-direction: column; /* Organiza os itens em coluna */
   }
 
-  /* Barra de pesquisa */
-  .search-bar input {
-    font-size: 12px;
-  }
-
-  /* Select */
   .estoque-select {
-    font-size: 12px;
+    padding: 8px;
+    width: 80%;
+    margin: 0 auto; /* Centraliza o seletor */
   }
 
-  /* Tabela */
   .estoque-table th,
   .estoque-table td {
-    padding: 8px; /* Reduz o padding */
-    font-size: 12px;
+    padding: 8px;
+    width: 70%;
   }
 
-  /* Progresso */
-  .progress-bar-label {
-    font-size: 10px; /* Menor fonte */
+  .search-bar input {
+    padding: 8px;
+    width: 70%;
+    margin: 0 auto; /* Centraliza a barra de pesquisa */
+  }
+
+  button {
+    padding: 6px 12px;
+  }
+
+  .estoque-tabela-container,
+  .estoque-caf-container {
+    max-height: 300px;
+    width: 90%;
+    margin: 0 auto; /* Centraliza o container */
+  }
+
+  .progress-bar-container {
+    margin-bottom: 6px;
   }
 
   .progress-bar-fill {
-    height: 6px; /* Menor altura nas barras de progresso */
+    height: 6px;
   }
 
   .progress-bar-text {
-    font-size: 10px; /* Ajusta o tamanho do texto */
-  }
-
-  /* Botões */
-  button {
-    font-size: 12px; /* Ajuste para botões em telas pequenas */
-    padding: 6px 12px; /* Reduz o padding */
-  }
-
-  /* Caixa rolável */
-  .estoque-tabela-container,
-  .estoque-caf-container {
-    max-height: 250px; /* Ajuste para telas pequenas */
-  }
-
-  /* Filtro */
-  .filtro-container {
-    flex-direction: column; /* Coloca os botões em coluna */
-    gap: 3px; /* Reduz o espaçamento entre os botões */
-  }
-
-  /* Info text */
-  .info-text {
     font-size: 10px;
-    max-width: 120px; /* Reduz o tamanho do texto e largura */
   }
 
-  /* Footer */
   .footer {
     font-size: 10px;
+    text-align: center; /* Centraliza o texto no rodapé */
+  }
+
+  /* Ajusta o layout para telas pequenas */
+  .loading-container {
+    font-size: 12px;
+    text-align: center; /* Centraliza o texto de carregamento */
   }
 }
