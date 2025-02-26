@@ -28,63 +28,75 @@ export default function EstoqueTable() {
   const [filtroIndisponivel, setFiltroIndisponivel] = useState<boolean>(false);
   const [filtroBaixo, setFiltroBaixo] = useState<boolean>(false);
   const [filtroCritco, setFiltroCritco] = useState<boolean>(false);
-  const [filtroNegativos, setFiltroNegativos] = useState<boolean>(false);
-
-  // Carregar o JSON de quantidades mínimas
-  useEffect(() => {
-    axios
-      .get("/quantidades_minimas.json")
-      .then((response) => {
-        setQuantidadesMinimas(response.data);
-      })
-      .catch((err) => {
-        setError("Erro ao carregar o arquivo de quantidades mínimas.");
-        console.error(err);
-      });
-  }, []);
 
   // Carregar unidades
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-    axios
-      .get("https://apianaliseestoque-production.up.railway.app/unidades")
-      .then((response) => {
-        if (response.data && Array.isArray(response.data.unidades)) {
-          setUnidades(response.data.unidades);
-        } else {
-          setError("Formato de dados inválido.");
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Erro ao carregar unidades");
-        setLoading(false);
-      });
-  }, []);
+useEffect(() => {
+  setLoading(true);
+  setError(null);
+  axios
+    .get("https://apianaliseestoque-production.up.railway.app/unidades")
+    .then((response) => {
+      if (response.data && Array.isArray(response.data.unidades)) {
+        setUnidades(response.data.unidades);
+      } else {
+        setError("Formato de dados inválido.");
+      }
+      setLoading(false);
+    })
+    .catch(() => {
+      setError("Erro ao carregar unidades");
+      setLoading(false);
+    });
+}, []);
 
-  // Carregar estoque ao selecionar unidade
-  useEffect(() => {
-    if (!unidadeSelecionada) return;
-    setLoading(true);
-    setEstoque([]);
-    setError(null);
+// Carregar estoque ao selecionar unidade
+useEffect(() => {
+  if (!unidadeSelecionada) return;
+  setLoading(true);
+  setEstoque([]);
+  setError(null);
 
-    axios
-      .get(`https://apianaliseestoque-production.up.railway.app/estoque/${unidadeSelecionada}`)
-      .then((response) => {
-        if (response.data && Array.isArray(response.data)) {
-          setEstoque(response.data);
-        } else {
-          setError("Formato de dados inválido.");
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Erro ao carregar dados de estoque");
-        setLoading(false);
-      });
-  }, [unidadeSelecionada]);
+  axios
+    .get(`https://apianaliseestoque-production.up.railway.app/estoque/${unidadeSelecionada}`)
+    .then((response) => {
+      if (response.data && Array.isArray(response.data)) {
+        setEstoque(response.data);
+      } else {
+        setError("Formato de dados inválido.");
+      }
+      setLoading(false);
+    })
+    .catch(() => {
+      setError("Erro ao carregar dados de estoque");
+      setLoading(false);
+    });
+}, [unidadeSelecionada]);
+
+// Carregar o JSON de quantidades mínimas
+const carregarJsonPorUnidade = (unidade: string) => {
+  // Verifica o nome da unidade e escolhe o JSON correto
+  if (unidade.includes("UPA") || unidade.includes("Hospital")) {
+    return "/quantidades_minimas_porte2.json"; // Para UPA ou Hospital
+  } else if (unidade.includes("UBS") || unidade.includes("Unidade Básica de Saúde")) {
+    return "/quantidades_minimas_porte1.json"; // Para UBS ou Unidade Básica de Saúde
+  }
+  return "/quantidades_minimas_porte1.json"; // Padrão, caso nenhum dos outros casos
+};
+
+useEffect(() => {
+  // Carrega o arquivo JSON baseado na unidade
+  const arquivoJson = carregarJsonPorUnidade(unidadeSelecionada);
+  axios
+    .get(arquivoJson)
+    .then((response) => {
+      console.log(response.data);  // Adicione este log
+      setQuantidadesMinimas(response.data);
+    })
+    .catch((err) => {
+      setError("Erro ao carregar o arquivo de quantidades mínimas.");
+      console.error(err);
+    });
+}, [unidadeSelecionada]); // Recarregar sempre que a unidade mudar
 
   const calcularStatus = (nomeMedicamento: string, estoqueAtual: number) => {
         const nomeMedicamentoLower = nomeMedicamento.toLowerCase();
@@ -156,7 +168,6 @@ export default function EstoqueTable() {
       setFiltroIndisponivel(true);  // Ativar o filtro e desmarcar os outros
       setFiltroBaixo(false);
       setFiltroCritco(false);
-      setFiltroNegativos(false);
     }
   };
   
@@ -167,7 +178,6 @@ export default function EstoqueTable() {
       setFiltroBaixo(true);  // Ativar o filtro e desmarcar os outros
       setFiltroIndisponivel(false);
       setFiltroCritco(false);
-      setFiltroNegativos(false);
     }
   };
   
@@ -178,18 +188,6 @@ export default function EstoqueTable() {
       setFiltroCritco(true);  // Ativar o filtro e desmarcar os outros
       setFiltroIndisponivel(false);
       setFiltroBaixo(false);
-      setFiltroNegativos(false);
-    }
-  };
-  
-  const toggleFiltroNegativos = () => {
-    if (filtroNegativos) {
-      setFiltroNegativos(false);  // Desmarcar o filtro e mostrar todos
-    } else {
-      setFiltroNegativos(true);  // Ativar o filtro e desmarcar os outros
-      setFiltroIndisponivel(false);
-      setFiltroBaixo(false);
-      setFiltroCritco(false);
     }
   };
   
@@ -202,7 +200,6 @@ export default function EstoqueTable() {
     if (filtroIndisponivel && status !== "Indisponível") return false;
     if (filtroBaixo && status !== "Baixo") return false;
     if (filtroCritco && status !== "Crítico") return false;
-    if (filtroNegativos && item.estoque_atual >= 0) return false;
   
     return true;
   });
@@ -304,16 +301,6 @@ export default function EstoqueTable() {
                       </div>
                     </div>
                   </button>
-
-                  <button onClick={toggleFiltroNegativos}>
-                  {filtroNegativos ? "Mostrar Todos" : "Mostrar Negativos"}
-                  <div className="info-container">
-                      <i className="info-icon">i</i>
-                      <div className="info-text">
-                        Filtro para mostrar itens em estado negativo no estoque.
-                      </div>
-                    </div>
-                </button>
 
                   <button onClick={exportarParaExcel}>Exportar</button>
                 </div>

@@ -26,7 +26,6 @@ export default function CafTable() {
   const [filtroIndisponivel, setFiltroIndisponivel] = useState<boolean>(false);
   const [filtroBaixo, setFiltroBaixo] = useState<boolean>(false);
   const [filtroCritco, setFiltroCritco] = useState<boolean>(false);
-  const [filtroNegativos, setFiltroNegativos] = useState<boolean>(false);
 
   // Carregar o JSON de quantidades mínimas
   useEffect(() => {
@@ -101,13 +100,21 @@ export default function CafTable() {
   const calcularStatus2 = (nomeMedicamento: string, estoqueAtual: number) => {
     const nomeMedicamentoLower = nomeMedicamento.toLowerCase();
 
-    // Filtrar correspondências no JSON
-    const correspondencias = Object.keys(quantidadesMinimas).filter((medicamento) =>
-      nomeMedicamentoLower.includes(medicamento.toLowerCase())
+    let correspondencias = Object.keys(quantidadesMinimas).filter(
+      (medicamento) => nomeMedicamentoLower === medicamento.toLowerCase()
     );
-
-    // Define uma quantidade mínima padrão caso não seja encontrada no JSON
+  
+    // Se não encontrar uma correspondência exata, tenta por correspondências parciais
+    if (correspondencias.length === 0) {
+      correspondencias = Object.keys(quantidadesMinimas).filter((medicamento) =>
+        nomeMedicamentoLower.includes(medicamento.toLowerCase())
+      );
+    }
+  
+    // Se não encontrar nenhuma correspondência, usa um valor padrão
     const minQuantidade = correspondencias.length === 0 ? 50 : quantidadesMinimas[correspondencias[0]];
+
+
     const estoqueAtualNumerico = Math.max(0, Number(estoqueAtual));
 
     // Retorna o status dependendo do estoque
@@ -131,7 +138,6 @@ const toggleFiltroIndisponivel = () => {
     setFiltroIndisponivel(true);  // Ativar o filtro e desmarcar os outros
     setFiltroBaixo(false);
     setFiltroCritco(false);
-    setFiltroNegativos(false);
   }
 };
 
@@ -142,7 +148,6 @@ const toggleFiltroBaixo = () => {
     setFiltroBaixo(true);  // Ativar o filtro e desmarcar os outros
     setFiltroIndisponivel(false);
     setFiltroCritco(false);
-    setFiltroNegativos(false);
   }
 };
 
@@ -153,7 +158,6 @@ const toggleFiltroCritico = () => {
     setFiltroCritco(true);  // Ativar o filtro e desmarcar os outros
     setFiltroIndisponivel(false);
     setFiltroBaixo(false);
-    setFiltroNegativos(false);
   }
 };
 
